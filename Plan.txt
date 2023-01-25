@@ -1,0 +1,10 @@
+	Suggested Plan for 2nd Week
+
+Goal: Sales Analysis
+
+Steps:
+	1.	Data Query : SQL query
+     For Each country, Annual sales: 2017, 2018, 2019.
+
+	2.	Data Visualization: Histogram plot, Distribution, etc.
+	3.	Data Analysis: Threshold defining, Classification of Countries
