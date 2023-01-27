@@ -1,6 +1,16 @@
 Andrei Cioaca : 
 =============
-
+select 
+	round ( od.unitprice * od.Quantity, 2) as SoldAMT,
+	round ( od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity, 2) as SoldAMTfp,
+	od.Discount,
+	o.freight,
+	round ( od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity - o.Freight, 2) as Profit ,
+	o.ShipRegion
+	from "Order Details" od 
+	join Orders o on od.OrderID = o.OrderID
+	where o.OrderDate  like '2016%'
+	order by profit
 
 
 Aristide Irakoze: 
