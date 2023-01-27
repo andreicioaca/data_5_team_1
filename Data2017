@@ -1,0 +1,11 @@
+select 
+	( od.unitprice * od.Quantity) as SoldAMT,
+	( od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity) as SoldAMTfp,
+	od.Discount,
+	o.freight,
+	( od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity - o.Freight) as Profit,
+	o.ShipRegion
+	from "Order Details" od 
+	join Orders o on od.OrderID = o.OrderID
+	where o.OrderDate  like '2017%'
+	order by profit
