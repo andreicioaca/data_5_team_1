@@ -1,16 +1,27 @@
 Andrei Cioaca : 
 =============
-select 
+select  
+	od.OrderID ,
+	od.UnitPrice ,
+	od.Quantity ,
 	round ( od.unitprice * od.Quantity, 2) as SoldAMT,
 	round ( od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity, 2) as SoldAMTfp,
 	od.Discount,
 	o.freight,
 	round ( od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity - o.Freight, 2) as Profit ,
-	o.ShipRegion
+	o.ShipRegion,
+	CASE 
+	when od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity < (( select avg(od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity) from "Order Details" od) /2)
+	then 'low sale'
+	when od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity > (( select avg(od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity) from "Order Details" od) /2) and 
+		od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity < (( select avg(od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity) from "Order Details" od)) + (( select avg(od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity) from "Order Details" od) /2)
+	then 'medium sale'
+	when od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity >((select avg(od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity) from "Order Details" od) + ( select avg(od.unitprice * od.Quantity - od.discount * od.unitprice * od.Quantity) from "Order Details" od) /2)
+	then 'high sale' END as 'sale category'
 	from "Order Details" od 
 	join Orders o on od.OrderID = o.OrderID
 	where o.OrderDate  like '2016%'
-	order by profit
+	order by soldamtfp
 
 -- testing gitpush
 
