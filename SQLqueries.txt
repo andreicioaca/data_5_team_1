@@ -1,17 +1,11 @@
-Andrei Cioaca : 
-=============
 
 
-
-Aristide Irakoze: 
-===============
-
-1. Details about Each Order including Countries and Prices
+1. Details about Each Order including Countries and Price Details
 
 SELECT  OrderDate, ShippedDate , ShipName , ShipCountry , Quantity, UnitPrice, Discount
 FROM Orders o JOIN 'Order Details' od ON od.OrderID = o.OrderID
 
-2.Money from Each Order
+2.Money Recieved from Each Order
 
 SELECT  OrderDate, ShippedDate , ShipName , ShipCountry ,
 Quantity * (UnitPrice - Discount ) as Amount
@@ -21,28 +15,20 @@ JOIN 'Order Details' od ON od.OrderID = o.OrderID
 3. Money from Each Order only in 2016
 
 SELECT  OrderDate, ShippedDate , ShipName , ShipCountry ,
-Quantity * (UnitPrice - Discount ) as Cost FROM Orders o
+Q Quantity * (UnitPrice - UnitPrice * Discount ) as Cost FROM Orders o
 JOIN 'Order Details' od ON od.OrderID = o.OrderID
 WHERE  ShippedDate LIKE '2016%'
 
 4. Total Money Per Country in  2016
 
 SELECT  OrderDate, ShippedDate  , ShipCountry ,
-SUM ( Quantity * (UnitPrice - Discount ) ) as Total FROM Orders o
+SUM ( Quantity * (UnitPrice - UnitPrice * Discount ) - Freight) as Total FROM Orders o
 JOIN 'Order Details' od ON od.OrderID = o.OrderID
 GROUP BY ShipCountry
 HAVING  ShippedDate LIKE '2016%'
 
 
 
-Peter Agunbiade : 
-===============
-
-
-
-
-DaniIo Marinković:
-================
 
 
 
