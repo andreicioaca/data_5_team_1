@@ -27,7 +27,7 @@ ORDER BY  o.ShipCountry;
 -- Calculate the sales amount for the company in the years 2016, 2017 and 2018 using 'order' and 'order details' tables and separate the sales amounts into 3 categories (low, medium and high sales).
 -- Teamleader will decide the threshold of each category.
 
--- Input from Peter Agunbiade - his definition of what low-medium-high sales should be:
+-- Week 2, Peter's code and proposal of what low-medium-high sales should be:
 
 /* 
 --High sales		Medium sales				Low sales
@@ -64,12 +64,13 @@ FROM
 GROUP BY 1, 2, 3
 ORDER BY 1
 
+-- Week 2, Peter's code END
 
 
 -- Week 3
 -- Calculate the top 3 selling products
 
--- (under construction)
+-- Week 3, Aristide's code, gave top 3 selling products in the company for all countries combined
 
 SELECT GROUP_CONCAT(ProductName) as "Products" ,  "Number of Sales"  
 FROM  (SELECT COUNT(od.ProductID) as  "Number of Sales", productName, od.ProductID 
@@ -78,3 +79,29 @@ JOIN 'Order Details' od on o.OrderID = od.orderid
 JOIN Products p on p.ProductID = od.ProductID
 GROUP BY ProductName)
 GROUP BY "Number of Sales" ORDER BY "Number of Sales" DESC LIMIT 3
+
+-- Week 3, Aristide's code END 
+
+-- Week 3, Danilo's code, gives top 3 products for each country based on PROFIT, not amount sold
+
+WITH sales_ranked AS (
+	SELECT ROW_NUMBER() OVER 
+	(
+		PARTITION BY country
+		ORDER BY profit DESC
+	) AS ranking, *
+	FROM 
+	(
+		SELECT DISTINCT o.ShipCountry AS country, p.ProductName AS product, SUM(od.UnitPrice * od.Quantity) AS profit
+		FROM Orders o
+		JOIN "Order Details" od ON o.OrderID = od.OrderID 
+		JOIN Products p ON od.ProductID = p.ProductID 
+		GROUP BY o.ShipCountry, p.ProductName
+		HAVING COUNT(country) <= 3
+		ORDER BY country ASC, profit DESC
+	) 
+)
+        
+SELECT * FROM sales_ranked WHERE ranking <= 3;
+
+-- Week 3, Danilo's code END 
