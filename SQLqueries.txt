@@ -70,3 +70,11 @@ ORDER BY 1
 # Calculate the top 3 selling products
 
 # (under construction)
+
+SELECT GROUP_CONCAT(ProductName) as "Products" ,  "Number of Sales"  
+FROM  (SELECT COUNT(od.ProductID) as  "Number of Sales", productName, od.ProductID 
+FROM Orders o 
+JOIN 'Order Details' od on o.OrderID = od.orderid
+JOIN Products p on p.ProductID = od.ProductID
+GROUP BY ProductName)
+GROUP BY "Number of Sales" ORDER BY "Number of Sales" DESC LIMIT 3
