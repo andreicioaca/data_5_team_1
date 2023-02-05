@@ -1,5 +1,5 @@
-# Week 1:
-# What countries does the company sell its products to and what are the categories sold to each country? 
+-- Week 1:
+-- What countries does the company sell its products to and what are the categories sold to each country? 
 
 select distinct o.ShipCountry, c.categoryname from Categories c 
         join Products p on c.CategoryID = p.CategoryID 
@@ -7,8 +7,8 @@ select distinct o.ShipCountry, c.categoryname from Categories c
         join Orders o on od.OrderID = o.OrderID 
 order by o.ShipCountry, c.CategoryName; 
 
-# Extra code that concatinates all categories into one column
-# NOTE: does NOT sort the categories - needs to be updated
+-- Extra code that concatinates all categories into one column
+-- NOTE: does NOT sort the categories - needs to be updated
 
 /*
 
@@ -23,11 +23,11 @@ ORDER BY  o.ShipCountry;
 
 
 
-# Week 2: 
-# Calculate the sales amount for the company in the years 2016, 2017 and 2018 using 'order' and 'order details' tables and separate the sales amounts into 3 categories (low, medium and high sales).
-# Teamleader will decide the threshold of each category.
+-- Week 2: 
+-- Calculate the sales amount for the company in the years 2016, 2017 and 2018 using 'order' and 'order details' tables and separate the sales amounts into 3 categories (low, medium and high sales).
+-- Teamleader will decide the threshold of each category.
 
-# Input from Peter Agunbiade - his definition of what low-medium-high sales should be:
+-- Input from Peter Agunbiade - his definition of what low-medium-high sales should be:
 
 /* 
 --High sales		Medium sales				Low sales
@@ -66,10 +66,10 @@ ORDER BY 1
 
 
 
-# Week 3
-# Calculate the top 3 selling products
+-- Week 3
+-- Calculate the top 3 selling products
 
-# (under construction)
+-- (under construction)
 
 SELECT GROUP_CONCAT(ProductName) as "Products" ,  "Number of Sales"  
 FROM  (SELECT COUNT(od.ProductID) as  "Number of Sales", productName, od.ProductID 
