@@ -1,25 +1,32 @@
 -- Week 1:
 -- What countries does the company sell its products to and what are the categories sold to each country? 
 
-select distinct o.ShipCountry, c.categoryname from Categories c 
-        join Products p on c.CategoryID = p.CategoryID 
-        join "Order Details" od on p.ProductID = od.ProductID 
-        join Orders o on od.OrderID = o.OrderID 
-order by o.ShipCountry, c.CategoryName; 
+-- Concatenates all categories into one column
+-- NOTE: Now sorts the categories
 
--- Extra code that concatinates all categories into one column
--- NOTE: does NOT sort the categories - needs to be updated
+WITH cat AS (
+SELECT
+	DISTINCT 
+	O.ShipCountry AS COUNTRY,
+	C.CategoryName AS CATEGORY
+FROM Orders o
+JOIN "Order Details" od ON
+	O.OrderID = OD.OrderID
+JOIN Products p ON
+	P.ProductID = OD.ProductID
+JOIN Categories c ON
+	C.CategoryID = P.CategoryID
+ORDER BY
+	O.ShipCountry,
+	C.CategoryName
+) 
+SELECT
+	COUNTRY,
+	CATEGORY,
+	GROUP_CONCAT(CATEGORY)
+FROM cat
+GROUP BY COUNTRY
 
-/*
-
-SELECT DISTINCT  o.ShipCountry country, GROUP_CONCAT(DISTINCT c.CategoryName) categories FROM Orders o
-	JOIN "Order Details" od  ON od.OrderID = o.OrderID 
-	JOIN Products p ON od.ProductID = p.ProductID 
-	JOIN Categories c on c.CategoryID = p.CategoryID
-GROUP BY o.ShipCountry 
-ORDER BY  o.ShipCountry;
-
-*/
 
 
 
