@@ -27,8 +27,27 @@ SELECT
 FROM cat
 GROUP BY COUNTRY
 
+-- WEEK 1, extra 
+-- Countries that have missing categories, and what categories they're missing
 
+WITH all_combos AS (
+	SELECT DISTINCT (o.ShipCountry || ':' || c.categoryname) AS combo FROM Orders o
+	CROSS JOIN Categories c 
+	ORDER BY ShipCountry, CategoryName
+), 
+actual_list AS (
 
+select distinct (o.ShipCountry || ':' || c.categoryname) AS actual from Categories c 
+        join Products p on c.CategoryID = p.CategoryID 
+        join "Order Details" od on p.ProductID = od.ProductID 
+        join Orders o on od.OrderID = o.OrderID 
+order by o.ShipCountry, c.CategoryName
+
+)
+
+SELECT SUBSTR(combo,1,INSTR(combo,':') -1) AS country, SUBSTR(combo,INSTR(combo,':') +1) AS product FROM all_combos a 
+LEFT OUTER JOIN actual_list b ON a.combo = b.actual
+WHERE b.actual IS null
 
 -- Week 2: 
 -- Calculate the sales amount for the company in the years 2016, 2017 and 2018 using 'order' and 'order details' tables and separate the sales amounts into 3 categories (low, medium and high sales).
