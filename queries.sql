@@ -112,3 +112,18 @@ WITH sales_ranked AS (
 SELECT * FROM sales_ranked WHERE ranking <= 3;
 
 -- Week 3, Danilo's code END 
+
+-- Week 3 Andrei's code 
+
+	select p.ProductName as "Products",
+        sum(quantity) as "Number of Sales"
+        from Orders o 
+        join "Order Details" od on o.OrderID = od.OrderID 
+        join Products p on od.ProductID = p.ProductID
+        group by od.ProductID 
+        order by "Number of sales" desc limit 3
+	
+-- Week 3 Andrei's code end	
+
+
+
