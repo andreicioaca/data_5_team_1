@@ -45,7 +45,7 @@ order by o.ShipCountry, c.CategoryName
 
 )
 
-SELECT SUBSTR(combo,1,INSTR(combo,':') -1) AS country, SUBSTR(combo,INSTR(combo,':') +1) AS product FROM all_combos a 
+SELECT SUBSTR(combo,1,INSTR(combo,':') -1) AS country, SUBSTR(combo,INSTR(combo,':') +1) AS missing_category FROM all_combos a 
 LEFT OUTER JOIN actual_list b ON a.combo = b.actual
 WHERE b.actual IS null
 
