@@ -48,6 +48,7 @@ order by o.ShipCountry, c.CategoryName
 SELECT SUBSTR(combo,1,INSTR(combo,':') -1) AS country, SUBSTR(combo,INSTR(combo,':') +1) AS missing_category FROM all_combos a 
 LEFT OUTER JOIN actual_list b ON a.combo = b.actual
 WHERE b.actual IS null
+ORDER BY country, missing_category
 
 -- Week 2: 
 -- Calculate the sales amount for the company in the years 2016, 2017 and 2018 using 'order' and 'order details' tables and separate the sales amounts into 3 categories (low, medium and high sales).
