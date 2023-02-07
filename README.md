@@ -19,3 +19,10 @@
 - Clean up branches (merge all final code branches with main) & organize accordingly
 - Calculate the top 3 selling products
 - Start presentation prep
+
+## Week 4 (Baha Özşahin):
+- Generate a report for the number of territories each employee responsible for
+- Generate a report for employee's performance according to sales amount and order them decreasing 
+- For low-sales regions what is the shipped category there?
+- Reevaluate the treshold from week 2
+- Clean the previous queries to make the data ready for visualization
