@@ -22,7 +22,6 @@ ORDER BY
 ) 
 SELECT
 	COUNTRY,
-	CATEGORY,
 	GROUP_CONCAT(CATEGORY)
 FROM cat
 GROUP BY COUNTRY
@@ -54,54 +53,64 @@ ORDER BY country, missing_category
 -- Calculate the sales amount for the company in the years 2016, 2017 and 2018 using 'order' and 'order details' tables and separate the sales amounts into 3 categories (low, medium and high sales).
 -- Teamleader will decide the threshold of each category.
 
--- Week 2, Peter's code and proposal of what low-medium-high sales should be:
+-- Week 2, Baha's input based on cluster analysis
 
-/* 
---High sales		Medium sales				Low sales
---Above 84%		Between 84% and 16%			Below 16%
---(38105.675)		(38105.675 - 2691.7)			(2691.7)
-*/
+--	High sales		Medium sales			Low sales
+--	>75,000			21,500 - 75,000			<21,500
 
-SELECT
-    strftime('%Y', order_date) as year,
-    ordered_country,
-    CategoryName,
-    SUM(sales - total_discount) as actual_sales,
-    CASE
-        WHEN SUM(sales - total_discount) >= 38105.675 THEN 'high sales'
-        WHEN SUM(sales - total_discount) < 38105.675
-        AND SUM(sales - total_discount) >= 2691.7 THEN 'medium sales'
-        WHEN SUM(sales - total_discount) < 2691.7 THEN 'low sales'
-    END AS 'sales_rank'
-FROM
-    (
-        SELECT
-            o."OrderDate" order_date,
-            o."ShipCountry" ordered_country,
-            c."CategoryName",
-            (od."UnitPrice" * od."Quantity") sales,
-            (od."UnitPrice" * od."Quantity") * od."Discount" as total_discount
-        FROM
-            "orders" o
-            JOIN "Order Details" od ON o."OrderID" = od."OrderID"
-            JOIN "Products" p ON p."ProductID" = od."ProductID"
-            JOIN "Categories" c ON c."CategoryID" = p."CategoryID"
-    )
+WITH annual_report AS (
+	SELECT
+		strftime('%Y', o.OrderDate) as year,
+		o.ShipCountry,
+		c.CategoryName,
+		SUM(od.UnitPrice * od.Quantity * (1- od.Discount)) as actual_sales
+	FROM "orders" o
+	JOIN "Order Details" od ON o."OrderID" = od."OrderID"
+	JOIN "Products" p ON p."ProductID" = od."ProductID"
+	JOIN "Categories" c ON c."CategoryID" = p."CategoryID"
+	GROUP BY YEAR, ShipCountry
+)
 
-GROUP BY 1, 2, 3
-ORDER BY 1
-
+SELECT *,
+CASE
+	WHEN (actual_sales >= 75000) THEN 2
+	WHEN (actual_sales BETWEEN 21500 AND 75000) THEN 1
+	WHEN (actual_sales < 21500) THEN 0
+END AS sales_level
+FROM annual_report
+ORDER BY year ASC, sales_level DESC;
 
 -- Week 3
 -- Calculate the top 3 selling products
 
-	select p.ProductName as "Products",
-        sum(quantity) as "Number of Sales"
-        from Orders o 
-        join "Order Details" od on o.OrderID = od.OrderID 
-        join Products p on od.ProductID = p.ProductID
-        group by od.ProductID 
-        order by "Number of sales" desc limit 3
+SELECT 
+	p.ProductName as "Products",
+	sum(quantity) as "Number of Sales"
+FROM Orders o 
 
+JOIN "Order Details" od ON o.OrderID = od.OrderID 
+JOIN Products p ON od.ProductID = p.ProductID
+GROUP BY od.ProductID 
+ORDER BY "Number of sales" DESC LIMIT 3
 
+-- Week 4
+-- Employee's performance according to sales amount, decreasing ORDER 
+
+-- last 4 people are in the same group (under employeeID nr 5), should investigate why this is
+-- maybe they operate low income areas?
+
+	SELECT 
+		e.EmployeeID,
+		e.FirstName || ' ' || e.LastName AS name,
+		ROUND(SUM((od.UnitPrice * od.Quantity) - (od.UnitPrice * od.Quantity) * od.Discount),2) AS profit,
+		e.ReportsTo,
+		GROUP_CONCAT(DISTINCT o.ShipRegion) AS regions
+	FROM Employees e 
+	JOIN Orders o ON e.EmployeeID = o.EmployeeID 
+	JOIN "Order Details" od ON o.OrderID = od.OrderID 
+	GROUP BY e.EmployeeID
+	ORDER BY profit DESC;
+
+-- How to check what regions employees do NOT cover? 
+-- There are a boatload of regions they cover, really hard to compare
 
