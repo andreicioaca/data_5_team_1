@@ -6,23 +6,23 @@
 
 WITH cat AS (
 SELECT
-	DISTINCT 
-	O.ShipCountry AS COUNTRY,
-	C.CategoryName AS CATEGORY
+    DISTINCT 
+    O.ShipCountry AS COUNTRY,
+    C.CategoryName AS CATEGORY
 FROM Orders o
 JOIN "Order Details" od ON
-	O.OrderID = OD.OrderID
+    O.OrderID = OD.OrderID
 JOIN Products p ON
-	P.ProductID = OD.ProductID
+    P.ProductID = OD.ProductID
 JOIN Categories c ON
-	C.CategoryID = P.CategoryID
+    C.CategoryID = P.CategoryID
 ORDER BY
-	O.ShipCountry,
-	C.CategoryName
+    O.ShipCountry,
+    C.CategoryName
 ) 
 SELECT
-	COUNTRY,
-	GROUP_CONCAT(CATEGORY)
+    COUNTRY,
+    GROUP_CONCAT(CATEGORY) as CATEGORY
 FROM cat
 GROUP BY COUNTRY
 
@@ -99,18 +99,48 @@ ORDER BY "Number of sales" DESC LIMIT 3
 -- last 4 people are in the same group (under employeeID nr 5), should investigate why this is
 -- maybe they operate low income areas?
 
-	SELECT 
-		e.EmployeeID,
-		e.FirstName || ' ' || e.LastName AS name,
-		ROUND(SUM((od.UnitPrice * od.Quantity) - (od.UnitPrice * od.Quantity) * od.Discount),2) AS profit,
-		e.ReportsTo,
-		GROUP_CONCAT(DISTINCT o.ShipRegion) AS regions
-	FROM Employees e 
-	JOIN Orders o ON e.EmployeeID = o.EmployeeID 
-	JOIN "Order Details" od ON o.OrderID = od.OrderID 
-	GROUP BY e.EmployeeID
-	ORDER BY profit DESC;
+SELECT 
+	e.EmployeeID,
+	e.FirstName || ' ' || e.LastName AS name,
+	ROUND(SUM((od.UnitPrice * od.Quantity) - (od.UnitPrice * od.Quantity) * od.Discount),2) AS profit,
+	e.ReportsTo,
+	GROUP_CONCAT(DISTINCT o.ShipRegion) AS regions
+FROM Employees e 
+JOIN Orders o ON e.EmployeeID = o.EmployeeID 
+JOIN "Order Details" od ON o.OrderID = od.OrderID 
+GROUP BY e.EmployeeID
+ORDER BY profit DESC;
 
 -- How to check what regions employees do NOT cover? 
 -- There are a boatload of regions they cover, really hard to compare
 
+-- Week 4
+-- Number of territories each employee responsible for
+SELECT  
+	ET.EmployeeID, 
+	LastName, 
+	FirstName, 
+	COUNT(TerritoryID) as "Number of Territories" 
+FROM EmployeeTerritories ET 
+JOIN Employees E ON ET.EmployeeID = E.EmployeeID
+GROUP BY ET.EmployeeID 
+ORDER BY "Number of Territories" DESC
+
+-- Week 4
+-- For low-sales regions what is the shipped category there?
+WITH regionPerformance AS (
+	SELECT 
+		o.ShipRegion,
+		SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS SoldAmount,
+		COUNT(DISTINCT ShipCountry) AS nr_of_countries
+	FROM Orders o 
+	JOIN "Order Details" od ON o.OrderID = od.OrderID
+	JOIN Products p  ON p.ProductID = od.ProductID 
+	JOIN Categories c  ON c.CategoryID = p.CategoryID 
+	GROUP BY ShipRegion 
+) 
+SELECT 
+	ShipRegion, 
+	SoldAmount
+FROM regionPerformance
+WHERE  SoldAmount < (21500 * nr_of_countries)
