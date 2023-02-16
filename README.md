@@ -26,3 +26,8 @@
 - For low-sales regions what is the shipped category there?
 - Reevaluate the treshold from week 2
 - Clean the previous queries to make the data ready for visualization
+
+## Week 5 (Andrei Cioaca):
+- Find the average shipping date for each category for low sales region and compare it with the Required date of the order (using shipped date - order date)
+- Find the effects of the discount on the low sales region by comparing it with high sales regions discount
+- prepare for final presentation 
