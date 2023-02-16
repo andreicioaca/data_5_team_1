@@ -24,7 +24,7 @@ SELECT
     COUNTRY,
     GROUP_CONCAT(CATEGORY) as CATEGORY
 FROM cat
-GROUP BY COUNTRY
+GROUP BY COUNTRY;
 
 -- WEEK 1, extra 
 -- Countries that have missing categories, and what categories they're missing
@@ -47,7 +47,7 @@ order by o.ShipCountry, c.CategoryName
 SELECT SUBSTR(combo,1,INSTR(combo,':') -1) AS country, SUBSTR(combo,INSTR(combo,':') +1) AS missing_category FROM all_combos a 
 LEFT OUTER JOIN actual_list b ON a.combo = b.actual
 WHERE b.actual IS null
-ORDER BY country, missing_category
+ORDER BY country, missing_category;
 
 -- Week 2: 
 -- Calculate the sales amount for the company in the years 2016, 2017 and 2018 using 'order' and 'order details' tables and separate the sales amounts into 3 categories (low, medium and high sales).
@@ -91,7 +91,7 @@ FROM Orders o
 JOIN "Order Details" od ON o.OrderID = od.OrderID 
 JOIN Products p ON od.ProductID = p.ProductID
 GROUP BY od.ProductID 
-ORDER BY "Number of sales" DESC LIMIT 3
+ORDER BY "Number of sales" DESC LIMIT 3;
 
 -- Week 4
 -- Employee's performance according to sales amount, decreasing ORDER 
@@ -103,8 +103,7 @@ SELECT
 	e.EmployeeID,
 	e.FirstName || ' ' || e.LastName AS name,
 	ROUND(SUM((od.UnitPrice * od.Quantity) - (od.UnitPrice * od.Quantity) * od.Discount),2) AS profit,
-	e.ReportsTo,
-	GROUP_CONCAT(DISTINCT o.ShipRegion) AS regions
+	e.ReportsTo
 FROM Employees e 
 JOIN Orders o ON e.EmployeeID = o.EmployeeID 
 JOIN "Order Details" od ON o.OrderID = od.OrderID 
@@ -124,23 +123,36 @@ SELECT
 FROM EmployeeTerritories ET 
 JOIN Employees E ON ET.EmployeeID = E.EmployeeID
 GROUP BY ET.EmployeeID 
-ORDER BY "Number of Territories" DESC
+ORDER BY "Number of Territories" DESC;
 
--- Week 4
--- For low-sales regions what is the shipped category there?
-WITH regionPerformance AS (
-	SELECT 
-		o.ShipRegion,
-		SUM(od.UnitPrice * od.Quantity * (1 - od.Discount)) AS SoldAmount,
-		COUNT(DISTINCT ShipCountry) AS nr_of_countries
-	FROM Orders o 
-	JOIN "Order Details" od ON o.OrderID = od.OrderID
-	JOIN Products p  ON p.ProductID = od.ProductID 
-	JOIN Categories c  ON c.CategoryID = p.CategoryID 
-	GROUP BY ShipRegion 
-) 
-SELECT 
-	ShipRegion, 
-	SoldAmount
-FROM regionPerformance
-WHERE  SoldAmount < (21500 * nr_of_countries)
+-- Week 4 
+-- Andrei's code - For low-sales regions what is the shipped category there?
+
+WITH cat AS (
+SELECT
+    DISTINCT 
+    O.ShipCountry AS COUNTRY,
+    O.ShipRegion AS REGION,
+    OD.UnitPrice AS UNITPRICE,
+    OD.Quantity AS QUANTITY,
+    OD.Discount AS DISCOUNT,
+    C.CategoryName AS CATEGORY
+FROM Orders o
+JOIN "Order Details" od ON
+    O.OrderID = OD.OrderID
+JOIN Products p ON
+    P.ProductID = OD.ProductID
+JOIN Categories c ON
+    C.CategoryID = P.CategoryID
+ORDER BY
+    O.ShipCountry,
+    C.CategoryName
+)
+select
+ROUND(SUM(UNITPRICE * QUANTITY * (1- DISCOUNT)),2) as ActualSales,
+REGION,
+group_concat(distinct CATEGORY) as 'Categories per region'
+from cat
+group by REGION 
+having ActualSales  < 30000
+order by ActualSales DESC
