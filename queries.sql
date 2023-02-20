@@ -194,3 +194,38 @@ JOIN week_2 w2 ON ld.ShipCountry = w2.ShipCountry
 WHERE w2.sales_level = 0
 GROUP BY category
 ORDER BY avg_delay_days DESC;
+
+
+-- Find the effects of the discount on the low sales region by comparing it with high sales regions discount
+
+WITH data AS (
+	SELECT
+		DISTINCT 
+		O.ShipCountry AS COUNTRY,
+		O.ShipRegion AS REGION,
+		OD.UnitPrice AS UNITPRICE,
+		OD.Quantity AS QUANTITY,
+		OD.Discount AS DISCOUNT,
+		C.CategoryName AS CATEGORY
+	FROM Orders o
+	JOIN "Order Details" od ON
+		O.OrderID = OD.OrderID
+	JOIN Products p ON
+		P.ProductID = OD.ProductID
+	JOIN Categories c ON
+		C.CategoryID = P.CategoryID
+	ORDER BY
+		O.ShipCountry,
+		C.CategoryName
+)
+SELECT
+	REGION,
+	ROUND(SUM(UNITPRICE * QUANTITY * (1- DISCOUNT)),2) as ActualSales,
+	CASE	
+	WHEN ROUND(SUM(UNITPRICE * QUANTITY * (1- DISCOUNT)),2) <= 30000 THEN 'Low'
+	WHEN ROUND(SUM(UNITPRICE * QUANTITY * (1- DISCOUNT)),2) > 30000 THEN 'High'
+	END as 'Sales_Level' ,
+	AVG (Discount) as AVG_Discount
+FROM data
+GROUP BY REGION 
+ORDER BY ActualSales DESC;
