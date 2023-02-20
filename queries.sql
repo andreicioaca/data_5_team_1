@@ -3,22 +3,23 @@
 
 -- Concatenates all categories into one column
 -- NOTE: Now sorts the categories
-CREATE VIEW week_1 AS 
+
+-- CREATE VIEW IF NOT EXISTS week_1 AS 
 WITH cat AS (
-SELECT
-    DISTINCT 
-    O.ShipCountry AS COUNTRY,
-    C.CategoryName AS CATEGORY
-FROM Orders o
-JOIN "Order Details" od ON
-    O.OrderID = OD.OrderID
-JOIN Products p ON
-    P.ProductID = OD.ProductID
-JOIN Categories c ON
-    C.CategoryID = P.CategoryID
-ORDER BY
-    O.ShipCountry,
-    C.CategoryName
+	SELECT
+		DISTINCT 
+		O.ShipCountry AS COUNTRY,
+		C.CategoryName AS CATEGORY
+	FROM Orders o
+	JOIN "Order Details" od ON
+		O.OrderID = OD.OrderID
+	JOIN Products p ON
+		P.ProductID = OD.ProductID
+	JOIN Categories c ON
+		C.CategoryID = P.CategoryID
+	ORDER BY
+		O.ShipCountry,
+		C.CategoryName
 ) 
 SELECT
     COUNTRY,
@@ -28,23 +29,28 @@ GROUP BY COUNTRY;
 
 -- WEEK 1, extra 
 -- Countries that have missing categories, and what categories they're missing
-CREATE VIEW week_1_missing AS 
+
+-- CREATE VIEW IF NOT EXISTS week_1_missing AS 
 WITH all_combos AS (
-	SELECT DISTINCT (o.ShipCountry || ':' || c.categoryname) AS combo FROM Orders o
+	SELECT 
+		DISTINCT (o.ShipCountry || ':' || c.categoryname) AS combo 
+	FROM Orders o
 	CROSS JOIN Categories c 
 	ORDER BY ShipCountry, CategoryName
 ), 
 actual_list AS (
-
-select distinct (o.ShipCountry || ':' || c.categoryname) AS actual from Categories c 
-        join Products p on c.CategoryID = p.CategoryID 
-        join "Order Details" od on p.ProductID = od.ProductID 
-        join Orders o on od.OrderID = o.OrderID 
-order by o.ShipCountry, c.CategoryName
-
+	SELECT
+		DISTINCT (o.ShipCountry || ':' || c.categoryname) AS actual 
+	FROM Categories c 
+	JOIN Products p ON c.CategoryID = p.CategoryID 
+	JOIN "Order Details" od ON p.ProductID = od.ProductID 
+	JOIN Orders o ON od.OrderID = o.OrderID 
+	ORDER BY o.ShipCountry, c.CategoryName
 )
-
-SELECT SUBSTR(combo,1,INSTR(combo,':') -1) AS country, SUBSTR(combo,INSTR(combo,':') +1) AS missing_category FROM all_combos a 
+SELECT 
+	SUBSTR(combo,1,INSTR(combo,':') -1) AS country, 
+	SUBSTR(combo,INSTR(combo,':') +1) AS missing_category 
+FROM all_combos a 
 LEFT OUTER JOIN actual_list b ON a.combo = b.actual
 WHERE b.actual IS null
 ORDER BY country, missing_category;
@@ -58,7 +64,8 @@ ORDER BY country, missing_category;
 --	High sales		Medium sales			Low sales
 --	>75,000			21,500 - 75,000			<21,500
 
-CREATE VIEW week_2 AS 
+-- NOTE: This view is needed for week 5's codes
+-- CREATE VIEW IF NOT EXISTS week_2 AS 
 WITH annual_report AS (
 	SELECT
 		strftime('%Y', o.OrderDate) as year,
@@ -71,24 +78,24 @@ WITH annual_report AS (
 	GROUP BY YEAR, ShipCountry
 )
 
-SELECT *,
-CASE
-	WHEN (actual_sales >= 75000) THEN 2
-	WHEN (actual_sales BETWEEN 21500 AND 75000) THEN 1
-	WHEN (actual_sales < 21500) THEN 0
-END AS sales_level
+SELECT 
+	*,
+	CASE
+		WHEN (actual_sales >= 75000) THEN 2
+		WHEN (actual_sales BETWEEN 21500 AND 75000) THEN 1
+		WHEN (actual_sales < 21500) THEN 0
+	END AS sales_level
 FROM annual_report
 ORDER BY year ASC, sales_level DESC;
 
 -- Week 3
 -- Calculate the top 3 selling products
 
-CREATE VIEW week_3 AS 
+-- CREATE VIEW IF NOT EXISTS week_3 AS 
 SELECT 
 	p.ProductName as "Products",
 	sum(quantity) as "Number of Sales"
 FROM Orders o 
-
 JOIN "Order Details" od ON o.OrderID = od.OrderID 
 JOIN Products p ON od.ProductID = p.ProductID
 GROUP BY od.ProductID 
@@ -100,7 +107,7 @@ ORDER BY "Number of sales" DESC LIMIT 3;
 -- last 4 people are in the same group (under employeeID nr 5), should investigate why this is
 -- maybe they operate low income areas?
 
-CREATE VIEW week_4_employee_performance AS 
+-- CREATE VIEW IF NOT EXISTS week_4_employee_performance AS 
 SELECT 
 	e.EmployeeID,
 	e.FirstName || ' ' || e.LastName AS name,
@@ -115,7 +122,7 @@ ORDER BY profit DESC;
 -- Week 4
 -- Number of territories each employee responsible for
 
-CREATE VIEW week_4_employee_territories AS 
+-- CREATE VIEW IF NOT EXISTS week_4_employee_territories AS 
 SELECT  
 	ET.EmployeeID, 
 	LastName, 
@@ -129,7 +136,7 @@ ORDER BY "Number of Territories" DESC;
 -- Week 4 
 -- Andrei's code - For low-sales regions what is the shipped category there?
 
-CREATE VIEW week_4_low_sale_categories AS 
+-- CREATE VIEW IF NOT EXISTS week_4_low_sale_categories AS 
 WITH cat AS (
 	SELECT
 		DISTINCT 
@@ -167,7 +174,7 @@ ORDER BY ActualSales DESC;
 
 -- Code by Dan and Baha to show all instances of delayed shipping
 
-CREATE VIEW week_5_avg_delay AS 
+-- CREATE VIEW IF NOT EXISTS week_5_avg_delay AS 
 WITH late_deliveries AS 
 (
 	SELECT
@@ -185,7 +192,6 @@ WITH late_deliveries AS
 	JOIN Categories c ON p.CategoryID = c.CategoryID
 	WHERE o.ShippedDate > o.RequiredDate 
 )
-
 SELECT 
 	ld.CategoryName AS 'Category', 
 	ROUND(AVG(ld.delay_in_days),2) AS avg_delay_days
