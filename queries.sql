@@ -257,7 +257,7 @@ SELECT
 	WHEN ROUND(SUM(UNITPRICE * QUANTITY * (1- DISCOUNT)),2) <= 30000 THEN 'Low'
 	WHEN ROUND(SUM(UNITPRICE * QUANTITY * (1- DISCOUNT)),2) > 30000 THEN 'High'
 	END as 'Sales_Level' ,
-	(ROUND(AVG (Discount),2) * 100) || '% ' as AVG_Discount
+	(ROUND((AVG (Discount) * 100),2)) || '% ' as AVG_Discount
 FROM data
 GROUP BY REGION 
 ORDER BY ActualSales DESC;
