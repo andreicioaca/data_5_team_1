@@ -190,13 +190,24 @@ WITH late_deliveries AS
 	JOIN 'Order details' od ON o.OrderID = od.OrderID
 	JOIN Products p ON od.ProductID = p.ProductID
 	JOIN Categories c ON p.CategoryID = c.CategoryID
-	WHERE o.ShippedDate > o.RequiredDate 
+), total_orders AS 
+(
+	SELECT 
+		CategoryName, 
+		COUNT(OrderID) AS total_orders 
+	FROM late_deliveries
+	GROUP BY CategoryName
 )
 SELECT 
 	ld.CategoryName AS 'Category', 
+	t.total_orders AS 'Total orders',
+	COUNT(ld.delay_in_days) AS 'Delayed orders',
+	COUNT(ld.delay_in_days) || '/' || t.total_orders || ' (' || ROUND(((COUNT(ld.delay_in_days) * 1.0 / t.total_orders) * 100),2) || '%)' AS 'Delayed / total (percentage)',
 	ROUND(AVG(ld.delay_in_days),2) AS avg_delay_days
 FROM late_deliveries ld
 JOIN week_2 w2 ON ld.ShipCountry = w2.ShipCountry
+JOIN total_orders t ON t.CategoryName = ld.CategoryName
 WHERE w2.sales_level = 0
+AND ShippedDate > RequiredDate 
 GROUP BY category
 ORDER BY avg_delay_days DESC;
