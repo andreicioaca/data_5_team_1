@@ -193,28 +193,43 @@ WITH late_deliveries AS
 ), total_orders AS 
 (
 	SELECT 
-		CategoryName, 
-		COUNT(OrderID) AS total_orders 
-	FROM late_deliveries
+		ld.CategoryName, 
+		COUNT(ld.OrderID) AS total_orders 
+	FROM late_deliveries ld
 	GROUP BY CategoryName
 )
 SELECT 
 	ld.CategoryName AS 'Category', 
 	t.total_orders AS 'Total orders',
 	COUNT(ld.delay_in_days) AS 'Delayed orders',
-	COUNT(ld.delay_in_days) || '/' || t.total_orders || ' (' || ROUND(((COUNT(ld.delay_in_days) * 1.0 / t.total_orders) * 100),2) || '%)' AS 'Delayed / total (percentage)',
+	COUNT(ld.delay_in_days) || ' / ' || t.total_orders || ' (' || ROUND(((COUNT(ld.delay_in_days) * 1.0 / t.total_orders) * 100),2) || '%)' AS 'Delayed / total (percentage)',
 	ROUND(AVG(ld.delay_in_days),2) AS avg_delay_days
 FROM late_deliveries ld
 JOIN week_2 w2 ON ld.ShipCountry = w2.ShipCountry
 JOIN total_orders t ON t.CategoryName = ld.CategoryName
-WHERE w2.sales_level = 0
+WHERE w2.sales_level =  -- Change 0 to 2 to get table for high sales shipment delays
 AND ShippedDate > RequiredDate 
 GROUP BY category
 ORDER BY avg_delay_days DESC;
 
+-- Baha's old code
 
+SELECT
+    E.EmployeeID,
+    E.FirstName,
+    E.LastName,
+    COUNT(O.OrderID) AS TOTAL_LATE_COUNT
+FROM Orders o
+JOIN Employees e
+ON E.EmployeeID = O.EmployeeID
+WHERE o.ShippedDate >= o.RequiredDate
+GROUP BY E.EmployeeID
+ORDER BY TOTAL_LATE_COUNT DESC
+
+-- Week 5
 -- Find the effects of the discount on the low sales region by comparing it with high sales regions discount
 
+-- CREATE VIEW IF NOT EXISTS week_5_discount AS
 WITH data AS (
 	SELECT
 		DISTINCT 
@@ -242,7 +257,7 @@ SELECT
 	WHEN ROUND(SUM(UNITPRICE * QUANTITY * (1- DISCOUNT)),2) <= 30000 THEN 'Low'
 	WHEN ROUND(SUM(UNITPRICE * QUANTITY * (1- DISCOUNT)),2) > 30000 THEN 'High'
 	END as 'Sales_Level' ,
-	AVG (Discount) as AVG_Discount
+	(ROUND(AVG (Discount),2) * 100) || '% ' as AVG_Discount
 FROM data
 GROUP BY REGION 
 ORDER BY ActualSales DESC;
