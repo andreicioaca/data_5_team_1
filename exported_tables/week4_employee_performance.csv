@@ -1,0 +1,10 @@
+EmployeeID,name,profit,ReportsTo
+4,Margaret Peacock,232890.85,2
+3,Janet Leverling,202812.84,2
+1,Nancy Davolio,192107.6,2
+2,Andrew Fuller,166537.76,NULL
+8,Laura Callahan,126862.28,2
+7,Robert King,124568.24,5
+9,Anne Dodsworth,77308.07,5
+6,Michael Suyama,73913.13,5
+5,Steven Buchanan,68792.28,2
