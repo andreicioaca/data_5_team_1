@@ -1,0 +1,8 @@
+Category,Total orders,Delayed orders,Delayed / total (percentage),avg_delay_days
+Meat/Poultry,173,4,4 / 173 (2.31%),11.5
+Dairy Products,366,14,14 / 366 (3.83%),8.14
+Confections,334,16,16 / 334 (4.79%),7.0
+Grains/Cereals,196,4,4 / 196 (2.04%),5.5
+Condiments,216,8,8 / 216 (3.7%),5.5
+Seafood,330,4,4 / 330 (1.21%),5.0
+Beverages,404,10,10 / 404 (2.48%),4.2
